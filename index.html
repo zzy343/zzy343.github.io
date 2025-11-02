@@ -1,118 +1,279 @@
-import streamlit as st
-import random
-import time
-import math
-
-class HeartAnimationWeb:
-    def __init__(self):
-        # 网页配置：标题、图标
-        st.set_page_config(page_title="爱心关心提示", page_icon="❤️")
-        st.title("❤️ 爱心关心提示动画")
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>祝福旭泰</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        # 保留原逻辑：文字、颜色、爱心参数
-        self.tips = [
-            '金龙', '招叶', '公牛', '旭泰',
-            '旭泰记得喝水', '旭泰按时吃饭', '旭泰别熬夜了', '旭泰照顾好自己',
-            '旭泰注意身体', '旭泰记得运动', '旭泰放松一下', '旭泰保持微笑',
-            '旭泰劳逸结合', '旭泰别太劳累', '旭泰记得午休', '旭泰多吃水果',
-            '旭泰出去走走', '旭泰呼吸新鲜空气', '旭泰保持好心情', '旭泰别久坐',
-            '旭泰记得早餐', '旭泰保护眼睛', '旭泰注意保暖', '旭泰别着凉',
-            '旭泰保持健康', '旭泰平安喜乐', '旭泰开心每一天', '旭泰一切顺利',
-            '旭泰万事如意', '旭泰心想事成'
-        ]
-        
-        self.bg_colors = [
-            'lightpink', 'skyblue', 'lightgreen', 'lavender', 'lightyellow',
-            'plum', 'coral', 'bisque', 'aquamarine', 'mistyrose'
-        ]
-        
-        # 适配网页的爱心参数
-        self.window_count = 100  # 爱心由100个“小卡片”组成
-        self.scale = 45  # 控制爱心整体大小
-        self.heart_points = self.generate_heart_points()  # 计算爱心坐标
-        self.empty_containers = []  # 存储网页占位组件
-
-    def heart_shape(self, t):
-        # 原爱心数学公式（保留）
-        x = 16 * (math.sin(t) ** 3)
-        y = -(13 * math.cos(t) - 5 * math.cos(2*t) - 2 * math.cos(3*t) - math.cos(4*t))
-        return x * self.scale, y * self.scale
-
-    def generate_heart_points(self):
-        # 计算爱心在网页中的坐标（适配Streamlit布局）
-        points = []
-        # 网页中心坐标（Streamlit主区域宽度约800px，高度自适应）
-        center_x, center_y = 400, 300
-        for i in range(self.window_count):
-            t = 2 * math.pi * i / self.window_count
-            x, y = self.heart_shape(t)
-            # 计算每个“小卡片”的坐标（确保爱心居中且位置适配）
-            card_x = center_x + x - 70  # 减去卡片宽度的一半（140/2）
-            card_y = center_y + y - 22  # 减去卡片高度的一半（45/2）
-            points.append((card_x, card_y))
-        return points
-
-    def create_web_card(self, x, y):
-        # 在网页中创建“小卡片”（替代tkinter窗口）
-        empty = st.empty()
-        self.empty_containers.append(empty)
-        
-        # 随机选择文字和背景色
-        tip = random.choice(self.tips)
-        bg = random.choice(self.bg_colors)
-        
-        # 用HTML/CSS模拟卡片样式（Streamlit支持直接渲染HTML）
-        card_html = f"""
-        <div style="
-            position: absolute;
-            left: {x}px;
-            top: {y}px;
-            width: 140px;
-            height: 45px;
-            background-color: {bg};
-            border-radius: 8px;
+        body {
+            background-color: #f0f8ff;
+            font-family: KaiTi, "楷体", serif;
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-family: '仿宋', serif;
-            font-size: 12px;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #e91e63;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: KaiTi, "楷体", serif;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .blessing-popup {
+            position: fixed;
+            width: 220px;
+            height: 100px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            animation: popup 0.3s ease-out forwards;
+            z-index: 1000;
+            font-size: 16px;
             font-weight: bold;
             color: #333;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        ">
-            {tip}
-        </div>
-        """
-        # 渲染卡片到网页
-        empty.markdown(card_html, unsafe_allow_html=True)
+        }
+        
+        @keyframes popup {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            color: #666;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        
+        .close-btn:hover {
+            background-color: rgba(0,0,0,0.1);
+        }
+        
+        .special {
+            border: 2px dashed #e91e63;
+            animation: special-popup 0.5s ease-out forwards;
+        }
+        
+        @keyframes special-popup {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.1) rotate(5deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>点击开始接收祝福吧！</h1>
+    <div class="buttons">
+        <button id="startBtn">开启祝福</button>
+        <button id="closeAllBtn">关闭所有</button>
+    </div>
 
-    def start_web_animation(self):
-        # 网页端动画主逻辑
-        st.info("💖 准备开始绘制爱心...点击下方按钮启动！")
-        # 添加启动按钮（增强交互）
-        if st.button("启动爱心动画"):
-            # 1. 逐步显示爱心卡片
-            st.success("💖 正在绘制大爱心...")
-            for x, y in self.heart_points:
-                self.create_web_card(x, y)
-                time.sleep(0.2)  # 控制显示速度
+    <script>
+        // 祝福语数组
+        const blessings = [
+            "旭泰",
+            "招叶！",
+            "金龙！",
+            "公牛！",
+            "旭泰是你爸",
+            "旭泰在学校里每天都轻松",
+            "旭泰每天都想见到你😊",
+            "旭泰有一个健康的身体！",
+            "旭泰每天都能开开心心！",
+            "旭泰家人都健健康康！"
+        ];
+        
+        // 特殊祝福语
+        const specialBlessing = "旭泰的心里只有你！";
+        
+        // 背景颜色数组
+        const bgColors = [
+            "#ffc0cb", "#ffb6c1", "#ff69b4", "#ff1493", "#db7093",
+            "#bc8f8f", "#c71585", "#ffa07a", "#ff7f50", "#ffa500",
+            "#ffffe0", "#e6e6fa", "#d8bfd8", "#dda0dd", "#ee82ee"
+        ];
+        
+        // 存储所有弹窗的引用
+        let popups = [];
+        let specialShown = false;
+        
+        // 获取DOM元素
+        const startBtn = document.getElementById('startBtn');
+        const closeAllBtn = document.getElementById('closeAllBtn');
+        
+        // 开启祝福按钮点击事件
+        startBtn.addEventListener('click', function() {
+            // 禁用按钮
+            startBtn.disabled = true;
             
-            # 2. 停留3秒
-            st.success("💕 大爱心完成！将在3秒后关闭...")
-            time.sleep(3)
+            // 生成100个弹窗
+            let count = 0;
+            const interval = setInterval(() => {
+                createPopup();
+                count++;
+                
+                if (count >= 100) {
+                    clearInterval(interval);
+                    // 5秒后恢复按钮
+                    setTimeout(() => {
+                        startBtn.disabled = false;
+                    }, 5000);
+                }
+            }, 50);
+        });
+        
+        // 关闭所有按钮点击事件
+        closeAllBtn.addEventListener('click', function() {
+            // 移除所有弹窗
+            popups.forEach(popup => {
+                if (popup && popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+            });
             
-            # 3. 逐步关闭卡片
-            st.success("✨ 正在关闭窗口...")
-            for container in reversed(self.empty_containers):
-                container.empty()  # 清空占位符（删除卡片）
-                time.sleep(0.1)
+            // 清空数组
+            popups = [];
             
-            st.success("✅ 动画结束！可再次点击按钮重新播放～")
-
-# 主函数（启动网页应用）
-def main():
-    app = HeartAnimationWeb()
-    app.start_web_animation()
-
-if __name__ == "__main__":
-    main()
+            // 重置特殊祝福状态
+            specialShown = false;
+            
+            // 确保开启按钮可用
+            startBtn.disabled = false;
+        });
+        
+        // 创建弹窗函数
+        function createPopup() {
+            // 创建弹窗元素
+            const popup = document.createElement('div');
+            popup.className = 'blessing-popup';
+            
+            // 随机选择背景颜色
+            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            popup.style.backgroundColor = randomColor;
+            
+            // 随机位置，确保不超出屏幕
+            const maxX = window.innerWidth - 220;
+            const maxY = window.innerHeight - 100;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            popup.style.left = `${randomX}px`;
+            popup.style.top = `${randomY}px`;
+            
+            // 确定祝福内容
+            let blessingText;
+            if (!specialShown && Math.random() < 0.1) {
+                // 10%概率显示特殊祝福
+                blessingText = specialBlessing;
+                specialShown = true;
+                popup.classList.add('special');
+            } else {
+                // 普通祝福
+                blessingText = blessings[Math.floor(Math.random() * blessings.length)];
+            }
+            
+            // 添加关闭按钮
+            const closeBtn = document.createElement('div');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                    // 从数组中移除
+                    const index = popups.indexOf(popup);
+                    if (index > -1) {
+                        popups.splice(index, 1);
+                    }
+                }
+            });
+            
+            // 添加祝福文本
+            const text = document.createElement('div');
+            text.textContent = blessingText;
+            
+            // 组装弹窗
+            popup.appendChild(closeBtn);
+            popup.appendChild(text);
+            
+            // 添加到页面
+            document.body.appendChild(popup);
+            
+            // 添加到数组
+            popups.push(popup);
+        }
+    </script>
+</body>
+</html>
